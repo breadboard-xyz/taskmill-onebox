@@ -1,0 +1,50 @@
+doctype html
+
+html(lang="en")
+  head
+    meta(charset='utf-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
+    meta(http-equiv='x-ua-compatible', content='ie=edge')
+
+    link(href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css", rel="stylesheet", integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd", crossorigin="anonymous")
+    script(src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/js/bootstrap.min.js", integrity="sha384-vZ2WRJMwsjRMW/8U7i6PWi6AlO1L79snBrmgiDpgIWJ82z8eA5lenwvxbMV1PAh7", crossorigin="anonymous")
+
+    title= TaskMill
+  body
+    .container
+      header.navbar.navbar-light.navbar-static-top
+        h1.navbar-brand TaskMill
+
+      .jumbotron
+        h1.display-3 TaskMill Local Setup
+        p.lead Supported REST Commands
+
+      .card
+        .card-header /run
+        .card-block
+          p.card-text Set <code>blob</code> header to the base64 encoded script you want to run. You script will be run and the response returned.
+
+      .card
+        .card-header /run/github.com/username/repository.git/branch/path
+        .card-block
+          p.card-text Call a script hosted on github.
+          p.card-text
+            | ex:
+            code /run/github.com/a7medkamel/taskmill-help.git/master/helloworld.js
+            | &nbsp;
+            a(href='http://localhost:1337/run/github.com/a7medkamel/taskmill-help.git/master/helloworld.js') Try it!
+
+      .card
+        .card-header GET /ls/github.com/username/repository.git
+        .card-block
+          p.card-text Lists all the .js files in a given git repository.
+          p.card-text
+            | ex:
+            code /ls/github.com/a7medkamel/taskmill-help.git/
+            | &nbsp;
+            a(href='http://localhost:1337/ls/github.com/a7medkamel/taskmill-help.git') Try it!
+
+      .card
+        .card-header POST /pull/github.com/username/repository.git
+        .card-block
+          p.card-text Updates the local copy of a given repository by pulling it from it's remote location.

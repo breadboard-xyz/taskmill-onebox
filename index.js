@@ -1,26 +1,89 @@
-var uuid    = require('node-uuid')
-  , express = require('express')
-  , Relay   = require('taskmill-core-relay').Relay
-  ;
+"use strict";
 
-const PORT=1337;
+var Promise       = require('bluebird')
+  , express       = require('express')
+  , winston       = require('winston')
+  , _             = require('lodash')
+  , config        = require('config-url')
+  , relay         = require('taskmill-core-relay')
+  , router        = require('taskmill-core-router')
+  , lib           = require('./lib')
+  // todo [akamel] make this router somewhere else
+  , codedb_sdk    = require('taskmill-core-codedb-sdk')
+  ;
 
 var app = express();
 
-var relay = new Relay({
-      web_socket        : undefined
-    , public_group_id   : '3eb2685e-4fd3-4b1e-acfc-4a03fc76a7e0'
+app.set('view engine', 'jade');
+
+app.get(/ls\/(.*\.git)/, (req, res) => {
+  let remote    = 'https://' + req.params[0]
+    , branch    = 'master'
+    , token     = req.get('FOOBAR-TOKEN')
+    ;
+
+  codedb_sdk
+    .ls(remote, { branch : branch, token : token })
+    .then((result) => {
+      res.send(result);
+    });
 });
 
-app.all('/execute', function(req, res){
-  Relay.get().emit({
-      id      : uuid.v4()
-    , content : req.get('$code')
-  }, req, res);
+app.post(/pull\/(.*\.git)/, (req, res) => {
+  let remote    = 'https://' + req.params[0]
+    , branch    = 'master'
+    , token     = req.get('FOOBAR-TOKEN')
+    ;
+
+  codedb_sdk
+    .pull(remote, { branch : branch, token : token })
+    .then((result) => {
+      res.send(result);
+    });
 });
 
-relay.listen({ port : 8124 }, function(){
-  app.listen(PORT, function(){
-    console.log("Server listening on: http://localhost:%s", PORT);
-  });
+app.all('/run', (req, res) => {
+  let content = (new Buffer(req.get('blob'), 'base64')).toString('utf8');
+
+  let data = { 
+    content : content
+  };
+
+  relay.instance().emit(data, req, res);
 });
+
+app.all('/', (req, res) => {
+  res.render('index');
+});
+
+app.all('*', (req, res, next) => {
+  var route = router.parseUniformScheme(req.path, { allow_action : true });
+
+  if (route && route.action === 'run') {
+    var data = _.extend({
+      codedb_url  : config.getUrl('codedb')
+    }, route);
+
+    relay.instance().emit(data, req, res);
+  } else {
+    next();
+  }
+});
+
+function main() {
+  return lib
+          .boot()
+          .then(() => {
+            // note: this needs to be a function and not lambda
+            app.listen(config.get('www.port'), function() {
+              winston.info("taskmill-onbox [started] :http://localhost:%d", this.address().port);
+            });
+
+            winston.info('all started');
+          })
+          .catch((err) => {
+            winston.error('boot', err);
+          });
+}
+
+main();
