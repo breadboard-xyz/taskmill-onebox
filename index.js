@@ -10,6 +10,8 @@ var Promise       = require('bluebird')
   , lib           = require('./lib')
   // todo [akamel] make this router somewhere else
   , codedb_sdk    = require('taskmill-core-codedb-sdk')
+  //
+  , colors        = require('colors')
   ;
 
 var app = express();
@@ -76,10 +78,17 @@ function main() {
           .then(() => {
             // note: this needs to be a function and not lambda
             app.listen(config.get('www.port'), function() {
-              winston.info("taskmill-onbox [started] :http://localhost:%d", this.address().port);
-            });
+              let port = this.address().port;
 
-            winston.info('all started');
+              console.log(require('fs').readFileSync('banner.txt').toString().green);
+              console.log(
+`
+============================================
+         http://localhost:${port}
+============================================
+`.green.bold)
+              winston.info("taskmill-onbox [started] :http://localhost:%d", port);
+            });
           })
           .catch((err) => {
             winston.error('boot', err);

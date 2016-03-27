@@ -1,12 +1,13 @@
 {
   "worker" : {
-    "type"              : "docker",
+    "type"              : "proc",
     "code-module"       : "taskmill-code-arbitrary",
+    "src"               : "./node_modules/taskmill-core-worker",
     "image"             : "a7medkamel/taskmill-core-worker",
-    "log-stdout"        : false
+    "log-stdout"        : true
   },
   "agent" : {
-    "group-id"          : null,
+    "group-id"          : "USE-RANDOM-UUID-FOR-PRODUCTION",
     "docker"            : { },
     "allow-foreign-code": false
   },
@@ -23,7 +24,7 @@
     "port"              : 8787, // we use the port in url if port is not found
     "max-age"           : 604800 // 1 week
   },
-  "relay"               : "http://taskmill.io:8124",
-  "tunnel"              : "http://taskmill.io:8989",
-  "services"            : "https://taskmill.io"
+  "relay"               : "http://localhost:8124",
+  "tunnel"              : "http://localhost:8989",
+  "services"            : "http://localhost"
 }
