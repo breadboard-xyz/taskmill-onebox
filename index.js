@@ -84,7 +84,7 @@ function main() {
               console.log(
 `
 ============================================
-         http://localhost:${port}
+      visit http://localhost:${port}
 ============================================
 `.green.bold)
               winston.info("taskmill-onbox [started] :http://localhost:%d", port);
